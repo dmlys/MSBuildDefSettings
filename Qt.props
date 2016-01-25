@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="ExtensionSettings">
+    <Import Project="$(MSBuildThisFileDirectory)\Qt\moc.props" />
+    <Import Project="$(MSBuildThisFileDirectory)\Qt\uic.props" />
+    <Import Project="$(MSBuildThisFileDirectory)\Qt\rcc.props" />
+  </ImportGroup>
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="$(MSBuildThisFileDirectory)\Qt\moc.targets" />
+    <Import Project="$(MSBuildThisFileDirectory)\Qt\uic.targets" />
+    <Import Project="$(MSBuildThisFileDirectory)\Qt\rcc.targets" />
+  </ImportGroup>
+</Project>

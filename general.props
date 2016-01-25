@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <OutDir>$(SolutionDir)bin\</OutDir>
+    <OutDir Condition="$(Platform) == 'x64'">$(OutDir)x64_$(Configuration.ToLower())\</OutDir>
+    <OutDir Condition="$(Platform) == 'Win32'">$(OutDir)x86_$(Configuration.ToLower())\</OutDir>
+    <IntDir>$(OutDir)obj\$(ProjectName)\</IntDir>
+    <TlbDir>$(OutDir)tlb\</TlbDir>
+    <OutDir Condition="$(ConfigurationType) == 'StaticLibrary'">$(OutDir)lib\</OutDir>
+    <GenerateManifest>false</GenerateManifest>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>
+        $(SolutionDir);$(TlbDir);$(ProjectDir);$(ProjectDir)src;$(ProjectDir)include;%(AdditionalIncludeDirectories)
+      </AdditionalIncludeDirectories>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <ProgramDataBaseFileName>$(OutDir)$(TargetName).pdb</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      
+      <!-- включаем на 3ем уровне warning C4239: nonstandard extension used : 'argument' -->
+      <!-- warning C4458: declaration of '<var>' hides class member -->
+      <!-- warning C4457: declaration of '<var>' hides function parameter -->
+      <!-- warning C4456: declaration of '<var>' hides previous local declaration -->
+      <AdditionalOptions>/w34239 /wd4458 /wd4457 /wd4456 %(AdditionalOptions)</AdditionalOptions>
+      
+      <!-- 
+        по стандартну альтернативные токены(not, or, and, ...) должны быть доступны даже без #include <ciso646>,
+        сам же файл может быть просто пустым.
+        Но msvc не следует этому, и объявляет данные токену с помощью макросов в файле ciso646.
+        Что бы не include'ить его везде, делаем авто include через опции компиляции
+      -->
+      <ForcedIncludeFiles>ciso646</ForcedIncludeFiles>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(SolutionDir)/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)$(TargetName).pdb</ProgramDatabaseFile>
+      <TargetMachine Condition="$(Platform) == 'Win32' ">MachineX86</TargetMachine>
+      <TargetMachine Condition="$(Platform) == 'x64' ">MachineX64</TargetMachine>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(TlbDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <!-- MIDL -->
+  <PropertyGroup>
+    <MidlGenDir>.\__MidlGen_$(Platform)\</MidlGenDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <Midl>
+      <AdditionalIncludeDirectories>$(TlbDir)/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <GenerateStublessProxies>true</GenerateStublessProxies>
+      <TypeLibraryName>$(TlbDir)$(TargetName).tlb</TypeLibraryName>
+      <HeaderFileName>.\%(Filename).h</HeaderFileName>
+      <InterfaceIdentifierFileName>.\%(Filename)_i.c</InterfaceIdentifierFileName>
+      <TargetEnvironment Condition="$(Platform) == 'Win32' ">Win32</TargetEnvironment>
+      <TargetEnvironment Condition="$(Platform) == 'x64' ">X64</TargetEnvironment>
+      <OutputDirectory>$(MidlGenDir)/</OutputDirectory>
+    </Midl>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(MidlGenDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>  
+</Project>

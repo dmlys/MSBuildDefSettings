@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemDefinitionGroup>
+    <QtMOCCompile>
+      <OutputFile                             Condition="'%(QtMOCCompile.OutputFile)'                             == ''">$(IntDir)moc_gen\moc_%(Filename).cpp</OutputFile>
+      <DoNotGenerateInclude                   Condition="'%(QtMOCCompile.DoNotGenerateInclude)'                   == ''">false</DoNotGenerateInclude>
+      <NoWarnings                             Condition="'%(QtMOCCompile.NoWarnings)'                             == ''">false</NoWarnings>
+      <BaseIncludePath                        Condition="'%(QtMOCCompile.BaseIncludePath)'                        == ''"></BaseIncludePath>
+      <AdditionalIncludeDirectories           Condition="'%(QtMOCCompile.AdditionalIncludeDirectories)'           == ''"></AdditionalIncludeDirectories>
+      <PreprocessOnly                         Condition="'%(QtMOCCompile.PreprocessOnly)'                         == ''">false</PreprocessOnly>
+      <PreprocessorDefinitions                Condition="'%(QtMOCCompile.PreprocessorDefinitions)'                == ''"></PreprocessorDefinitions>
+      <UndefinePreprocessorDefinitions        Condition="'%(QtMOCCompile.PreprocessorDefinitions)'                == ''"></UndefinePreprocessorDefinitions>
+      <MOC                                    Condition="'%(QtMOCCompile.MOC)'                                    == ''">$(QTDIR)\bin\moc.exe</MOC>
+      <CommandLineTemplate>%(MOC) [AllOptions] [AdditionalOptions] [Inputs]</CommandLineTemplate>
+    </QtMOCCompile>
+  </ItemDefinitionGroup>
+</Project>

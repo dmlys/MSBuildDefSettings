@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <!-- проверяется в QT/moc.targets -->
+    <EnableRelativeDirs>true</EnableRelativeDirs>
+  </PropertyGroup>  
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <!--
+        хорошая опция, позволяет создавать проекты, в которых есть cpp файлы с одинаковыми именами, но в разных папках
+        %(RelativeDir) - well known metadata, заолняется MSBuild'ом
+      -->
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <AssemblerListingLocation>$(IntDir)%(RelativeDir)</AssemblerListingLocation>
+      <XMLDocumentationFileName>$(IntDir)%(RelativeDir)</XMLDocumentationFileName>
+    </ClCompile>
+    <QtMOCCompile>
+      <OutputFile Condition="'%(QtMOCCompile.OutputFile)' == ''">$(IntDir)moc_gen\%(RelativeDir)moc_%(Filename).cpp</OutputFile>
+    </QtMOCCompile>
+  </ItemDefinitionGroup>
+</Project>

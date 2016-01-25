@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemDefinitionGroup>
+    <QtRCCCompile>
+      <OutputFile                             Condition="'%(QtRCCCompile.OutputFile)'                             == ''">$(IntDir)rcc_gen\rcc_%(Filename).cpp</OutputFile>
+      <ExternalInitializationFunction         Condition="'%(QtRCCCompile.ExternalInitializationFunction)'         == ''">%(Filename)</ExternalInitializationFunction>
+      <Threshold                              Condition="'%(QtRCCCompile.Threshold)'                              == ''"></Threshold>
+      <CompressLevel                          Condition="'%(QtRCCCompile.CompressLevel)'                          == ''">-1</CompressLevel>
+      <Root                                   Condition="'%(QtRCCCompile.Root)'                                   == ''"></Root>
+      <DisableCompression                     Condition="'%(QtRCCCompile.DisableCompression)'                     == ''">true</DisableCompression>
+      <Binary                                 Condition="'%(QtRCCCompile.Binary)'                                 == ''">false</Binary>
+      <RCC                                    Condition="'%(QtRCCCompile.RCC)'                                    == ''">$(QTDIR)\bin\rcc.exe</RCC>
+      <AdditionalDependencies                 Condition="'%(QtRCCCompile.AdditionalDependencies)'                 == ''"></AdditionalDependencies>
+      <CommandLineTemplate>%(RCC) [AllOptions] [AdditionalOptions] [Inputs]</CommandLineTemplate>
+    </QtRCCCompile>
+  </ItemDefinitionGroup>
+</Project>

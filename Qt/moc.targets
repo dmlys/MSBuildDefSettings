@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <!--
+    Ассоциируем этот файл с соотествующим ему xml что бы студия могла создать диалог настроек
+    для самого MSBuild это поидее не нужно
+  -->
+  <ItemGroup>
+    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)$(MSBuildThisFileName).xml" />
+    <AvailableItemName Include="QtMOCCompile">
+      <Targets>QtMOCCompile</Targets>
+    </AvailableItemName>
+  </ItemGroup>
+  
+  <PropertyGroup>
+    <!-- данное свойство заставляет выполнять пересборку при изменении этого target. В общем рекомендуется ставить -->  
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    
+    <!-- 
+      Добавляем в набор генерируемых исходников шаги генерации moc.
+      По идее это стандартный способ добавления
+    -->
+    <BuildGenerateSourcesTargets>
+      $(BuildGenerateSourcesTargets);
+      QtMOCCompile;
+    </BuildGenerateSourcesTargets>
+    
+    <!-- 
+      добавляем таргет, который добавит сгенерированные cpp в результирующий набор для компиляции,
+      это что-то типа стандартного механизма
+    -->
+    <ComputeCompileInputsTargets>
+      $(ComputeCompileInputsTargets);
+      ComputeQtMOCCompileOutput;
+    </ComputeCompileInputsTargets>
+  </PropertyGroup>
+
+  <!-- Стандартный XamlTask -->
+  <UsingTask
+    TaskName="QtMOC"
+    TaskFactory="XamlTaskFactory"
+    AssemblyName="Microsoft.Build.Tasks.v4.0">
+    <Task>$(MSBuildThisFileDirectory)$(MSBuildThisFileName).xml</Task>
+  </UsingTask>
+
+  <!-- Стандартная поддержка обработки выделенных файлов по Ctrl + F7 -->
+  <Target
+    Name="SelectQtMOCCompile"
+    DependsOnTargets="_SelectedFiles;SelectCustomBuild"
+  >
+    <ItemGroup Condition="'@(SelectedFiles)' != ''">
+      <QtMOCCompile
+        Remove="@(QtMOCCompile)"
+        Condition="'%(Identity)' != '@(SelectedFiles)'"
+      />
+    </ItemGroup>
+  </Target>
+  
+  <!-- Собственно mocking -->
+  <Target
+    Name="QtMOCCompile"
+    Condition="'@(QtMOCCompile)' != ''"
+    DependsOnTargets="SelectQtMOCCompile;MakeDirsForMOC"
+    Inputs="@(QtMOCCompile)"
+    Outputs="%(OutputFile)"
+  >  
+    <!-- информационное сообщение и логирование подобно стандартным компонентам(ClCompile, etc) -->
+    <Message Text="MOC %(QtMOCCompile.Identity) -> $([System.IO.Path]::GetFileName('%(QtMOCCompile.OutputFile)'))"
+             Condition="'%(QtMOCCompile.ExcludedFromBuild)' != 'true'"
+             Importance="high"/>
+    <ItemGroup>
+      <QtMOCCompile_tlog
+        Include="%(QtMOCCompile.OutputFile)"
+        Condition="'%(QtMOCCompile.OutputFile)' != '' and '%(QtMOCCompile.ExcludedFromBuild)' != 'true'"
+      >
+        <Source>@(QtMOCCompile, '|')</Source>
+      </QtMOCCompile_tlog>
+    </ItemGroup>
+    <WriteLinesToFile
+      Condition="'@(QtMOCCompile_tlog)' != '' and '%(QtMOCCompile_tlog.ExcludedFromBuild)' != 'true'"
+      File="$(TLogLocation)$(ProjectName).write.1.tlog"
+      Lines="^%(QtMOCCompile_tlog.Source);@(QtMOCCompile_tlog-&gt;'%(Fullpath)')"
+    />
+    <!-- Создаем папку -->
+    <MakeDir
+      Directories="$([System.IO.Path]::GetDirectoryName('%(QtMOCCompile.OutputFile)'))"
+    />
+    <!-- вызов moc.exe -->
+    <QtMOC
+      Condition="'%(QtMOCCompile.ExcludedFromBuild)' != 'true'"
+      OutputFile="%(QtMOCCompile.OutputFile)"
+      DoNotGenerateInclude="%(QtMOCCompile.DoNotGenerateInclude)"
+      NoWarnings="%(QtMOCCompile.NoWarnings)"
+      BaseIncludePath="%(QtMOCCompile.BaseIncludePath)"
+      AdditionalIncludeDirectories="%(QtMOCCompile.AdditionalIncludeDirectories)"
+      PreprocessOnly="%(QtMOCCompile.PreprocessOnly)"
+      PreprocessorDefinitions="%(QtMOCCompile.PreprocessorDefinitions)"
+      UndefinePreprocessorDefinitions="%(QtMOCCompile.UndefinePreprocessorDefinitions)"
+      Inputs="%(QtMOCCompile.Identity)"
+      AdditionalOptions="%(QtMOCCompile.AdditionalOptions)"
+      CommandLineTemplate="%(QtMOCCompile.CommandLineTemplate)"
+    />
+  </Target>
+  
+  <Target Name="MakeDirsForMOC">
+    <MakeDir Directories="@(QtMOCCompile->Metadata('OutputFile')->DirectoryName()->Distinct()->ClearMetadata())" />
+  </Target>
+
+  <!-- Добавление сгенерированных cpp в набор файлов для компиляции -->
+  <Target
+    Name="ComputeQtMOCCompileOutput"
+    Condition="'@(QtMOCCompile)' != ''"
+  >
+    <!-- Собственно добавление путем создания ClCompile -->
+    <ItemGroup>
+      <ClCompile
+        Include="%(QtMOCCompile.OutputFile)"
+        Condition="'%(QtMOCCompile.ExcludedFromBuild)' != 'true'"
+      >
+        <WarningLevel>TurnOffAllWarnings</WarningLevel>
+        <!-- <PrecompiledHeader>NotUsing</PrecompiledHeader> -->
+        <ObjectFileName Condition="$(EnableRelativeDirs)=='true'">$(IntDir)%(QtMOCCompile.RelativeDir)</ObjectFileName>
+        <AssemblerListingLocation Condition="$(EnableRelativeDirs)=='true'">$(IntDir)%(QtMOCCompile.RelativeDir)</AssemblerListingLocation>
+        <XMLDocumentationFileName Condition="$(EnableRelativeDirs)=='true'">$(IntDir)%(QtMOCCompile.RelativeDir)</XMLDocumentationFileName>
+        <!-- нужны ли? -->
+        <AutoGen>True</AutoGen>
+        <DependentUpon>%(QtMOCCompile.Identity)</DependentUpon>
+      </ClCompile>
+    </ItemGroup>
+  </Target>
+</Project>

@@ -1,0 +1,19 @@
+<!--
+  содержит конфигурация для /W4 с отключением некоторых варинингов, как например:
+  warning C4512: assignment operator could not be generated
+  warning C4100: unreferenced formal parameter
+  warning C4127: conditional expression is constant
+-->
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemDefinitionGroup>
+    <ClCompile>      
+      <WarningLevel>Level4</WarningLevel>
+      <!-- 
+        warning C4512: assignment operator could not be generated
+        warning C4100: unreferenced formal parameter
+        warning C4127: conditional expression is constant
+      -->
+      <DisableSpecificWarnings>4100; 4127; 4512; %(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>    
+  </ItemDefinitionGroup>
+</Project>

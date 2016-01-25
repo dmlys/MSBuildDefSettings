@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemDefinitionGroup>
+    <QtUICCompile>
+      <OutputFile               Condition="'%(QtUICCompile.OutputFile)'               == ''">$(IntDir)ui_gen\ui_%(Filename).h</OutputFile>
+      <TranslationFunction      Condition="'%(QtUICCompile.TranslationFunction)'      == ''"></TranslationFunction>
+      <DontGenerateHeaderGuards Condition="'%(QtUICCompile.DontGenerateHeaderGuards)' == ''">false</DontGenerateHeaderGuards>
+      <UIC                      Condition="'%(QtUICCompile.UIC)'                      == ''">$(QTDIR)\bin\uic.exe</UIC>
+      <CommandLineTemplate>%(UIC) [AllOptions] [AdditionalOptions] [Inputs]</CommandLineTemplate>
+    </QtUICCompile>
+    <ClCompile>
+      <!-- добавляем в INCLUDE путь как папке ui_gen -->
+      <AdditionalIncludeDirectories>$(IntDir)ui_gen;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+</Project>

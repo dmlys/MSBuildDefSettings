@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- комментарии смотри в moc.targets. Данный файл сделан по шаблону -->
+  <ItemGroup>
+    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)$(MSBuildThisFileName).xml" />
+    <AvailableItemName Include="QtRCCCompile">
+      <Targets>QtRCCCompile</Targets>
+    </AvailableItemName>
+  </ItemGroup>
+
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <BuildGenerateSourcesTargets>
+      $(BuildGenerateSourcesTargets);
+      QtRCCCompile;
+    </BuildGenerateSourcesTargets>
+    <ComputeCompileInputsTargets>
+      $(ComputeCompileInputsTargets);
+      ComputeQtRCCCompileOutput;
+    </ComputeCompileInputsTargets>
+  </PropertyGroup>
+
+  <UsingTask
+    TaskName="QtRCC"
+    TaskFactory="XamlTaskFactory"
+    AssemblyName="Microsoft.Build.Tasks.v4.0">
+    <Task>$(MSBuildThisFileDirectory)$(MSBuildThisFileName).xml</Task>
+  </UsingTask>
+
+  <Target
+    Name="SelectQtRCCCompile"
+    DependsOnTargets="_SelectedFiles;SelectCustomBuild"
+  >
+    <ItemGroup Condition="'@(SelectedFiles)' != ''">
+      <QtRCCCompile
+        Remove="@(QtRCCCompile)"
+        Condition="'%(Identity)' != '@(SelectedFiles)'"
+      />
+    </ItemGroup>
+  </Target>
+
+  <Target
+    Name="QtRCCCompile"
+    Condition="'@(QtRCCCompile)' != ''"
+    DependsOnTargets="SelectQtRCCCompile;MakeDirsForRCC"
+    Inputs="@(QtRCCCompile);%(QtRCCCompile.AdditionalDependencies);"
+    Outputs="%(OutputFile)"
+  >
+    <Message Text="RCC %(QtRCCCompile.Identity) -> $([System.IO.Path]::GetFileName('%(QtRCCCompile.OutputFile)'))"
+             Condition="'%(QtRCCCompile.ExcludedFromBuild)' != 'true'"
+             Importance="high"/>
+    <ItemGroup>
+      <QtRCCCompile_tlog
+        Include="%(QtRCCCompile.OutputFile)"
+        Condition="'%(QtRCCCompile.OutputFile)' != '' and '%(QtRCCCompile.ExcludedFromBuild)' != 'true'"
+      >
+        <Source>@(QtRCCCompile, '|')</Source>
+      </QtRCCCompile_tlog>
+    </ItemGroup>
+    <WriteLinesToFile
+      Condition="'@(QtRCCCompile_tlog)' != '' and '%(QtRCCCompile_tlog.ExcludedFromBuild)' != 'true'"
+      File="$(TLogLocation)$(ProjectName).write.1.tlog"
+      Lines="^%(QtRCCCompile_tlog.Source);@(QtRCCCompile_tlog-&gt;'%(Fullpath)')"
+    />
+    <QtRCC
+      Condition="'%(QtRCCCompile.ExcludedFromBuild)' != 'true'"
+      OutputFile="%(QtRCCCompile.OutputFile)"
+      ExternalInitializationFunction="%(QtRCCCompile.ExternalInitializationFunction)"
+      Threshold="%(QtRCCCompile.Threshold)"
+      CompressLevel="%(QtRCCCompile.CompressLevel)"
+      Root="%(QtRCCCompile.Root)"
+      DisableCompression="%(QtRCCCompile.DisableCompression)"
+      Binary="%(QtRCCCompile.Binary)"
+      Inputs="%(QtRCCCompile.Identity)"
+      AdditionalOptions="%(QtRCCCompile.AdditionalOptions)"
+      CommandLineTemplate="%(QtRCCCompile.CommandLineTemplate)"
+    />
+  </Target>
+
+  <Target Name="MakeDirsForRCC">
+    <MakeDir Directories="@(QtRCCCompile->Metadata('OutputFile')->DirectoryName()->Distinct()->ClearMetadata())" />
+  </Target>
+  
+  <Target
+    Name="ComputeQtRCCCompileOutput"
+    Condition="'@(QtRCCCompile)' != ''"
+  >
+    <ItemGroup>
+      <ClCompile
+        Include="%(QtRCCCompile.OutputFile)"
+        Condition="'%(QtRCCCompile.ExcludedFromBuild)' != 'true'"
+      >
+        <WarningLevel>TurnOffAllWarnings</WarningLevel>
+        <!-- <PrecompiledHeader>NotUsing</PrecompiledHeader> -->
+        <ObjectFileName>$(IntDir)</ObjectFileName>
+        <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+        <XMLDocumentationFileName>$(IntDir)</XMLDocumentationFileName>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>%(QtRCCCompile.Identity)</DependentUpon>
+      </ClCompile>
+    </ItemGroup>
+  </Target>
+</Project>

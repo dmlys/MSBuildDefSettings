@@ -28,6 +28,10 @@
       <!-- WholeProgramOptimization фактически требует этот ключ, линкер ругнется и начнет по новой в отсутствие -->
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
+    <Lib>
+      <!-- WholeProgramOptimization фактически требует этот ключ, линкер ругнется и начнет по новой в отсутствие -->
+      <LinkTimeCodeGeneration>true</LinkTimeCodeGeneration>
+    </Lib>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0419</Culture>
